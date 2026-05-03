@@ -1,3 +1,6 @@
+#define SET_BIT(bb, sq) ((bb) |= (1ULL << (sq)))
+#define CLEAR_BIT(bb, sq) ((bb) &= ~(1ULL << (sq)))
+#define GET_BIT(bb, sq) (((bb) >> (sq)) & 1ULL)
 #include "raylib.h"
 #include <iostream>
 #include <cstdint>
@@ -9,8 +12,7 @@ enum PieceType { EMPTY, WP, BP, WN, BN, WB, BB, WR, BR, WQ, BQ, WK, BK };
 Color baishe = {241, 216, 179, 255};
 Color brown = {169, 129, 97, 255};
 
-string startingFenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-int tileSize = 96;
+int tileSize = 128;
 int windowWidth = tileSize * 8;
 int windowHeight = tileSize * 8;
 
@@ -22,6 +24,7 @@ struct Piece {
 struct Position {
     Piece board[8][8];
     uint64_t bitboards[12];
+    uint64_t whiteOccupancy = 0;
 };
 
 Texture2D pieceTextures[13];
@@ -47,18 +50,12 @@ void UnloadPieceTextures() {
 
 PieceType charToPieceType(char c) {
     switch (c) {
-        case 'P': return WP;
-        case 'p': return BP;
-        case 'N': return WN;
-        case 'n': return BN;
-        case 'B': return WB;
-        case 'b': return BB;
-        case 'R': return WR;
-        case 'r': return BR;
-        case 'Q': return WQ;
-        case 'q': return BQ;
-        case 'K': return WK;
-        case 'k': return BK;
+        case 'P': return WP; case 'p': return BP;
+        case 'N': return WN; case 'n': return BN;
+        case 'B': return WB; case 'b': return BB;
+        case 'R': return WR; case 'r': return BR;
+        case 'Q': return WQ; case 'q': return BQ;
+        case 'K': return WK; case 'k': return BK;
         default:  return EMPTY;
     }
 };
@@ -78,12 +75,21 @@ void parseFen(Position &position, string fen) {
             col = 0;
         } 
         // you can do equality operations on a char int 
-        else if ((c <= '7') && (c >= '1')) {
+        else if (isdigit(c)) {
             // c - '0' == convert to int
             col += (c - '0');
         }
         else {
-            position.board[row][col].type = charToPieceType(c);
+            PieceType pieceType = charToPieceType(c);
+            position.board[row][col].type = pieceType;
+
+            // the 64 bit position 
+            int piecePosition = (7 - row) * 8 + col;
+
+            // 1ULL << n : nth bit in a 64 bit bitmask set to 1.
+            // [pieceType - 1] because index 'EMPTY' is 0.
+            position.bitboards[pieceType - 1] |= (1ULL << piecePosition);
+
             col++;
         }
     }
@@ -142,7 +148,7 @@ int main() {
     LoadPieceTextures();    
 
     Position position = {};
-    parseFen(position, startingFenString);
+    parseFen(position, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); // starting fen string
 
     while (!WindowShouldClose()) {
 
