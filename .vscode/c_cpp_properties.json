@@ -2,10 +2,10 @@
     "configurations": [
         {
             "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "C:/raylib/raylib/src"
-            ],
+        "includePath": [                                                                                                                                                                                              
+            "${workspaceFolder}/**",                                                                                                                                                                                  
+            "/opt/homebrew/opt/raylib/include"                                                                                                                                                                          
+        ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
