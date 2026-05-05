@@ -2,12 +2,11 @@
 #define CLEAR_BIT(bb, sq) ((bb) &= ~(1ULL << (sq)))
 #define GET_BIT(bb, sq) (((bb) >> (sq)) & 1ULL)
 #include "raylib.h"
+#include "types.h"
 #include <iostream>
 #include <cstdint>
 #include <string>
 using namespace std;
-
-enum PieceType { EMPTY, WP, BP, WN, BN, WB, BB, WR, BR, WQ, BQ, WK, BK };
 
 Color baishe = {241, 216, 179, 255};
 Color brown = {169, 129, 97, 255};
@@ -15,17 +14,6 @@ Color brown = {169, 129, 97, 255};
 int tileSize = 96;
 int windowWidth = tileSize * 8;
 int windowHeight = tileSize * 8;
-
-struct Piece {
-    PieceType type;
-    Color color;
-};
-
-struct Position {
-    Piece board[64];
-    uint64_t bitboards[12];
-    uint64_t whiteOccupancy = 0;
-};
 
 Texture2D pieceTextures[13];
 
@@ -64,7 +52,7 @@ void parseFen(Position &position, string fen) {
     // clear the board first 
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
-            position.board[(7 - row) * 8 + col] = {EMPTY, WHITE};
+            position.board[(7 - row) * 8 + col] = {EMPTY};
         }
     }
     int row = 0, col = 0;
@@ -95,23 +83,19 @@ void parseFen(Position &position, string fen) {
     }
 };
 
-struct Move {
-    uint8_t from;
-    uint8_t to;
-    uint8_t flags;
-    uint8_t promotion;
-};
-
-struct MoveList {
-
-};
-
 void generateLegalMoves(Position &position, MoveList &out) {
 
-}
+};
+
+void generatePawnLegalMovees(Position &position, MoveList &out) {
+
+};
 
 void move(Position &position, Move move) {
     Piece piece = position.board[move.from];
+    position.board[move.from].type = EMPTY;
+    position.board[move.to] = piece;
+    
 };
 
 void drawPieces(Position &position) {
