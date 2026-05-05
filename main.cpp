@@ -12,7 +12,7 @@ enum PieceType { EMPTY, WP, BP, WN, BN, WB, BB, WR, BR, WQ, BQ, WK, BK };
 Color baishe = {241, 216, 179, 255};
 Color brown = {169, 129, 97, 255};
 
-int tileSize = 128;
+int tileSize = 96;
 int windowWidth = tileSize * 8;
 int windowHeight = tileSize * 8;
 
@@ -22,7 +22,7 @@ struct Piece {
 };
 
 struct Position {
-    Piece board[8][8];
+    Piece board[64];
     uint64_t bitboards[12];
     uint64_t whiteOccupancy = 0;
 };
@@ -64,7 +64,7 @@ void parseFen(Position &position, string fen) {
     // clear the board first 
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
-            position.board[row][col] = {EMPTY, WHITE};
+            position.board[(7 - row) * 8 + col] = {EMPTY, WHITE};
         }
     }
     int row = 0, col = 0;
@@ -81,7 +81,7 @@ void parseFen(Position &position, string fen) {
         }
         else {
             PieceType pieceType = charToPieceType(c);
-            position.board[row][col].type = pieceType;
+            position.board[(7 - row) * 8 + col].type = pieceType;
 
             // the 64 bit position 
             int piecePosition = (7 - row) * 8 + col;
@@ -95,10 +95,29 @@ void parseFen(Position &position, string fen) {
     }
 };
 
+struct Move {
+    uint8_t from;
+    uint8_t to;
+    uint8_t flags;
+    uint8_t promotion;
+};
+
+struct MoveList {
+
+};
+
+void generateLegalMoves(Position &position, MoveList &out) {
+
+}
+
+void move(Position &position, Move move) {
+    Piece piece = position.board[move.from];
+};
+
 void drawPieces(Position &position) {
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
-            PieceType pieceType = position.board[row][col].type;
+            PieceType pieceType = position.board[(7 - row) * 8 + col].type;
             if (pieceType == EMPTY) continue;
 
             Texture2D image = pieceTextures[pieceType];
