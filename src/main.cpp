@@ -83,14 +83,6 @@ void parseFen(Position &position, string fen) {
     }
 };
 
-void generateLegalMoves(Position &position, MoveList &out) {
-
-};
-
-void generatePawnLegalMovees(Position &position, MoveList &out) {
-
-};
-
 void move(Position &position, Move move) {
     Piece piece = position.board[move.from];
     position.board[move.from].type = EMPTY;

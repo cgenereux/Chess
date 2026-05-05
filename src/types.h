@@ -1,8 +1,8 @@
+#pragma once
 #define SET_BIT(bb, sq) ((bb) |= (1ULL << (sq)))
 #define CLEAR_BIT(bb, sq) ((bb) &= ~(1ULL << (sq)))
 #define GET_BIT(bb, sq) (((bb) >> (sq)) & 1ULL)
 #include <cstdint>
-#pragma once
 
 enum PieceType { EMPTY, WP, BP, WN, BN, WB, BB, WR, BR, WQ, BQ, WK, BK };
 
