@@ -1,4 +1,4 @@
-chess: src/*.cpp                                                                                                                                                                                              
+chess: src/*.cpp src/*.h                                                                                                                                                                                              
 	clang++ src/*.cpp -o chess -I/opt/homebrew/opt/raylib/include -L/opt/homebrew/opt/raylib/lib -lraylib -framework CoreVideo -framework IOKit -framework Cocoa -framework OpenGL                       
 run: chess                                                                                                                                                                                                    
 	./chess              
