@@ -2,7 +2,46 @@
 #include <cstdint>
 
 void generateLegalMoves(bool isWhiteTurn, Position &position, MoveList &out) {
+
+    uint64_t emptySquares = ~(position.whitePieces | position.blackPieces);
+    uint64_t enemies = isWhiteTurn ? (position.blackPieces) : (position.whitePieces);
+
     generatePawnLegalMoves(isWhiteTurn, position, out);
+    generateKingLegalMoves(isWhiteTurn, position, out);
+};
+
+void generateKingLegalMoves(bool isWhiteTurn, Position &position, MoveList &out) {
+
+    uint64_t colA = 0x0101010101010101ULL;
+    uint64_t colH = 0x8080808080808080ULL;
+
+    uint64_t emptySquares = ~(position.whitePieces | position.blackPieces);
+    uint64_t enemies = isWhiteTurn ? (position.blackPieces) : (position.whitePieces);
+    uint64_t friendlyKing = isWhiteTurn ? position.bitboards[WK] : position.bitboards[BK];
+
+    int moveDirections[8] = {7,8,9,1,-7,-8,-9,-1};
+    Move move;
+
+    // in cpp any non 0 value is true
+    bool onColA = friendlyKing & colA;
+    bool onColH = friendlyKing & colH;
+
+    for (int i = 0; i < 8; i++) {
+
+        if ((moveDirections[i] == 7 || moveDirections[i] == -1 || moveDirections[i] == -9) && onColA) continue;
+        if ((moveDirections[i] == 9 || moveDirections[i] == 1 || moveDirections[i] == -7) && onColH) continue;
+
+        uint64_t moveDirection;
+        if (moveDirections[i] >= 0) {
+            moveDirection = (friendlyKing << moveDirections[i]) & (emptySquares | enemies);
+        } else {
+            moveDirection = (friendlyKing >> moveDirections[i]*-1) & (emptySquares | enemies);
+        }
+        if (!moveDirection) continue;
+        move.to = __builtin_ctzll(moveDirection);
+        move.from = move.to-moveDirections[i];
+        out.addMove(move);
+    }
 };
 
 void generatePawnLegalMoves(bool isWhiteTurn, Position &position, MoveList &out) {
