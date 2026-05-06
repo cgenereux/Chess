@@ -2,7 +2,7 @@
 #include <cstdint>
 
 void generateLegalMoves(bool isWhiteTurn, Position &position, MoveList &out) {
-
+    generatePawnLegalMoves(isWhiteTurn, position, out);
 };
 
 void generatePawnLegalMoves(bool isWhiteTurn, Position &position, MoveList &out) {

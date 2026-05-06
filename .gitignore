@@ -1,0 +1,5 @@
+chess.exe
+chess
+*.exe
+*.o
+chess.code-workspace
