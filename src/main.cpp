@@ -10,6 +10,7 @@ using namespace std;
 int tileSize = 96;
 int windowWidth = tileSize * 8;
 int windowHeight = tileSize * 8;
+bool isWhiteTurn = true;
 
 PieceType charToPieceType(char c) {
     switch (c) {

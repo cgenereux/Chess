@@ -13,7 +13,9 @@ struct Piece {
 struct Position {
     Piece board[64];
     uint64_t bitboards[13];
-    uint64_t whiteOccupancy = 0;
+    uint64_t whitePieces;
+    uint64_t blackPieces;
+    uint64_t empty;
 };
 
 struct Move {
