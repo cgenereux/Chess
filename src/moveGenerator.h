@@ -3,6 +3,6 @@
 
 void generateLegalMoves(bool isWhiteTurn, Position &position, MoveList &out);
 
-void generatePawnLegalMoves(bool isWhiteTurn, Position &position, MoveList &out);
+void generatePawnLegalMoves(uint64_t enemies, bool isWhiteTurn, Position &position, MoveList &out);
 
-void generateKingLegalMoves(bool isWhiteTurn, Position &position, MoveList &out);
+void generateKingLegalMoves(uint64_t enemies, bool isWhiteTurn, Position &position, MoveList &out);

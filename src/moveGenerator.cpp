@@ -1,22 +1,22 @@
 #include "moveGenerator.h"
 #include <cstdint>
 
+constexpr uint64_t colA = 0x0101010101010101ULL;
+constexpr uint64_t colH = 0x8080808080808080ULL;
+constexpr uint64_t row4 = 0x00000000FF000000ULL;
+constexpr uint64_t row5 = 0x000000FF00000000ULL;
+
 void generateLegalMoves(bool isWhiteTurn, Position &position, MoveList &out) {
 
-    uint64_t emptySquares = ~(position.whitePieces | position.blackPieces);
+    position.empty = ~(position.whitePieces | position.blackPieces);
     uint64_t enemies = isWhiteTurn ? (position.blackPieces) : (position.whitePieces);
 
-    generatePawnLegalMoves(isWhiteTurn, position, out);
-    generateKingLegalMoves(isWhiteTurn, position, out);
+    generatePawnLegalMoves(enemies, isWhiteTurn, position, out);
+    generateKingLegalMoves(enemies, isWhiteTurn, position, out);
 };
 
-void generateKingLegalMoves(bool isWhiteTurn, Position &position, MoveList &out) {
+void generateKingLegalMoves(uint64_t enemies, bool isWhiteTurn, Position &position, MoveList &out) {
 
-    uint64_t colA = 0x0101010101010101ULL;
-    uint64_t colH = 0x8080808080808080ULL;
-
-    uint64_t emptySquares = ~(position.whitePieces | position.blackPieces);
-    uint64_t enemies = isWhiteTurn ? (position.blackPieces) : (position.whitePieces);
     uint64_t friendlyKing = isWhiteTurn ? position.bitboards[WK] : position.bitboards[BK];
 
     int moveDirections[8] = {7,8,9,1,-7,-8,-9,-1};
@@ -33,9 +33,9 @@ void generateKingLegalMoves(bool isWhiteTurn, Position &position, MoveList &out)
 
         uint64_t moveDirection;
         if (moveDirections[i] >= 0) {
-            moveDirection = (friendlyKing << moveDirections[i]) & (emptySquares | enemies);
+            moveDirection = (friendlyKing << moveDirections[i]) & (position.empty | enemies);
         } else {
-            moveDirection = (friendlyKing >> moveDirections[i]*-1) & (emptySquares | enemies);
+            moveDirection = (friendlyKing >> moveDirections[i]*-1) & (position.empty | enemies);
         }
         if (!moveDirection) continue;
         move.to = __builtin_ctzll(moveDirection);
@@ -44,16 +44,10 @@ void generateKingLegalMoves(bool isWhiteTurn, Position &position, MoveList &out)
     }
 };
 
-void generatePawnLegalMoves(bool isWhiteTurn, Position &position, MoveList &out) {
+void generatePawnLegalMoves(uint64_t enemies, bool isWhiteTurn, Position &position, MoveList &out) {
 
-    // EMPTY is already defined to [0] in my PieceType enum so i can't AND it 
-    uint64_t emptySquares = ~(position.whitePieces | position.blackPieces); 
-
-    uint64_t row4 = 0x00000000FF000000ULL;
-    uint64_t row5 = 0x000000FF00000000ULL;
-
-    uint64_t advanceOne = isWhiteTurn ? ((position.bitboards[WP] << 8) & emptySquares) : ((position.bitboards[BP] >> 8) & emptySquares);
-    uint64_t advanceTwo = isWhiteTurn ? ((advanceOne << 8) & emptySquares & row4) : ((advanceOne >> 8) & emptySquares & row5);
+    uint64_t advanceOne = isWhiteTurn ? ((position.bitboards[WP] << 8) & position.empty) : ((position.bitboards[BP] >> 8) & position.empty);
+    uint64_t advanceTwo = isWhiteTurn ? ((advanceOne << 8) & position.empty & row4) : ((advanceOne >> 8) & position.empty & row5);
 
     int direction = isWhiteTurn ?  -8 : +8;
 
@@ -81,14 +75,9 @@ void generatePawnLegalMoves(bool isWhiteTurn, Position &position, MoveList &out)
         advanceTwo &= advanceTwo-1;
     }
 
-    uint64_t enemies = isWhiteTurn ? (position.blackPieces) : (position.whitePieces);
     uint64_t pawns = isWhiteTurn ? position.bitboards[WP] : position.bitboards[BP];
 
-    uint64_t colA = 0x0101010101010101ULL;
-    uint64_t colH = 0x8080808080808080ULL;
-
-    uint64_t leftCaptures;
-    uint64_t rightCaptures;
+    uint64_t leftCaptures, rightCaptures;
 
     leftCaptures = isWhiteTurn ? ((pawns << 7) & enemies & ~colH) : ((pawns >> 9) & enemies & ~colH);
     int moveLength = isWhiteTurn ? -7 : 9;
