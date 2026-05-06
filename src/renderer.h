@@ -7,4 +7,6 @@ void LoadPieceTextures();
 
 void UnloadPieceTextures();
 
-void drawPieces(Position &position);
+void drawPieces(Position &position, int tileSize);
+
+void drawBoard(int tileSize);

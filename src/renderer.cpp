@@ -4,9 +4,12 @@ using namespace std;
 
 Texture2D pieceTextures[13];
 
-int tileSize = 96;
-int windowWidth = tileSize * 8;
-int windowHeight = tileSize * 8;
+extern int tileSize;                                                                                                                                                                                          
+extern int windowWidth;
+extern int windowHeight;
+
+Color baishe = {241, 216, 179, 255};
+Color brown = {169, 129, 97, 255};
 
 void LoadPieceTextures() {
     pieceTextures[WP] = LoadTexture("res/white-pawn.png");
@@ -27,7 +30,7 @@ void UnloadPieceTextures() {
     for (int i = 1; i < 13; i++) UnloadTexture(pieceTextures[i]);
 };
 
-void drawPieces(Position &position) {
+void drawPieces(Position &position, int tileSize) {
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
             PieceType pieceType = position.board[(7 - row) * 8 + col].type;
@@ -73,3 +76,22 @@ void drawPieces(Position &position) {
         }
     }
 };
+
+void drawBoard(int tileSize) {
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            bool isWhiteTile = ((row + col) % 2 == 0);
+            
+            Color tileColor = isWhiteTile ? baishe : brown;
+
+            DrawRectangle(
+                tileSize * col,
+                tileSize * row,
+                tileSize,
+                tileSize,
+                tileColor
+            );
+        }
+    }
+};
+

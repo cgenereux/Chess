@@ -7,9 +7,6 @@
 #include <string>
 using namespace std;
 
-Color baishe = {241, 216, 179, 255};
-Color brown = {169, 129, 97, 255};
-
 int tileSize = 96;
 int windowWidth = tileSize * 8;
 int windowHeight = tileSize * 8;
@@ -73,7 +70,7 @@ int main() {
     SetTargetFPS(60);
     LoadPieceTextures();    
 
-    Position position = {};
+    Position position;
     parseFen(position, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); // starting fen string
 
     while (!WindowShouldClose()) {
@@ -81,22 +78,8 @@ int main() {
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                bool isWhiteTile = ((row + col) % 2 == 0);
-                
-                Color tileColor = isWhiteTile ? baishe : brown;
-
-                DrawRectangle(
-                    tileSize * col,
-                    tileSize * row,
-                    tileSize,
-                    tileSize,
-                    tileColor
-                );
-            }
-        }
-        drawPieces(position); 
+        drawBoard(tileSize);
+        drawPieces(position, tileSize); 
         EndDrawing();
     }
     UnloadPieceTextures();  
