@@ -1,5 +1,4 @@
 #include "moveGenerator.h"
-#include <cstdint>
 
 constexpr uint64_t colA = 0x0101010101010101ULL;
 constexpr uint64_t colH = 0x8080808080808080ULL;

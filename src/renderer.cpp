@@ -30,49 +30,55 @@ void UnloadPieceTextures() {
     for (int i = 1; i < 13; i++) UnloadTexture(pieceTextures[i]);
 };
 
+void drawPiece(PieceType pieceType, int col, float x, float y) {
+
+    if (pieceType == EMPTY) return;
+
+    Texture2D image = pieceTextures[pieceType];
+    float scale = (float)tileSize / image.width;
+
+    // default facing left
+    float flipMultiplier = -1.0f;
+    if (pieceType == WN || pieceType == BN) {
+        if (col >= 4) {
+            // flip it to facing right
+            flipMultiplier = 1.0f;
+        }
+    }
+
+    Rectangle sourceRectangle = { 
+        0.0f, 
+        0.0f, 
+        (float)image.width * flipMultiplier, 
+        (float)image.height 
+    };
+
+    Rectangle destRectangle = { 
+        x,
+        y,
+        (float)tileSize, 
+        (float)tileSize 
+    };
+
+    Vector2 origin = { 0.0f, 0.0f };
+
+    DrawTexturePro(
+        image, 
+        sourceRectangle, 
+        destRectangle, 
+        origin, 
+        0.0f,  // rotation (no rotation)
+        WHITE  // tint (white == no tint)
+    );
+
+}
+
 void drawPieces(Position &position, int tileSize) {
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
             PieceType pieceType = position.board[(7 - row) * 8 + col].type;
-            if (pieceType == EMPTY) continue;
 
-            Texture2D image = pieceTextures[pieceType];
-
-            float scale = (float)tileSize / image.width;
-
-            // default facing left
-            float flipMultiplier = -1.0f;
-            if (pieceType == WN || pieceType == BN) {
-                if (col >= 4) {
-                    // flip it to facing right
-                    flipMultiplier = 1.0f;
-                }
-            }
-
-            Rectangle sourceRectangle = { 
-                0.0f, 
-                0.0f, 
-                (float)image.width * flipMultiplier, 
-                (float)image.height 
-            };
-
-            Rectangle destRectangle = { 
-                (float)col * tileSize, 
-                (float)row * tileSize, 
-                (float)tileSize, 
-                (float)tileSize 
-            };
-
-            Vector2 origin = { 0.0f, 0.0f };
-
-            DrawTexturePro(
-                image, 
-                sourceRectangle, 
-                destRectangle, 
-                origin, 
-                0.0f,  // rotation (no rotation)
-                WHITE  // tint (white == no tint)
-            );
+            drawPiece(pieceType, col, ((float)col * tileSize), (float)row * tileSize);
         }
     }
 };
@@ -95,3 +101,10 @@ void drawBoard(int tileSize) {
     }
 };
 
+void drawSelectedPiece(Position &position, int tile, float mouseX, float mouseY) {
+    PieceType pieceType = position.board[tile].type;
+    if (pieceType == EMPTY) return;
+    
+    int col = tile % 8;
+    drawPiece(pieceType, col, mouseX - (tileSize/2), mouseY - (tileSize/2)); 
+};

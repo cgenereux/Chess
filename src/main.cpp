@@ -2,14 +2,16 @@
 #include "types.h"
 #include "moveGenerator.h"
 #include "renderer.h"
+#include "mouseActions.h"
 #include <iostream>
 #include <cstdint>
 #include <string>
 using namespace std;
 
 int tileSize = 96;
-int windowWidth = tileSize * 8;
-int windowHeight = tileSize * 8;
+int screenWidth = tileSize * 8;
+int screenHeight = tileSize * 8;
+
 bool isWhiteTurn = true;
 
 PieceType charToPieceType(char c) {
@@ -67,8 +69,8 @@ void move(Position &position, Move move) {
 };
 
 int main() {
-    InitWindow(windowWidth, windowHeight, "Chess");
-    SetTargetFPS(60);
+    InitWindow(screenWidth, screenHeight, "Chess");
+    SetTargetFPS(140);
     LoadPieceTextures();    
 
     Position position;
@@ -78,9 +80,11 @@ int main() {
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
-
+        
         drawBoard(tileSize);
         drawPieces(position, tileSize); 
+        update(position);
+
         EndDrawing();
     }
     UnloadPieceTextures();  
