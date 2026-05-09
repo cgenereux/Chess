@@ -8,6 +8,8 @@
 #include <string>
 using namespace std;
 
+extern uint64_t selectedLegalMoves;
+
 int tileSize = 96;
 int screenWidth = tileSize * 8;
 int screenHeight = tileSize * 8;
@@ -27,7 +29,13 @@ PieceType charToPieceType(char c) {
 };
 
 void parseFen(Position &position, string fen) {
-    // clear the board first 
+
+    // clear the bitboards 
+    for (int i = 0; i < 13; i++) {
+        position.bitboards[i] = 0;
+    }
+
+    // clear the board  
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
             position.board[(7 - row) * 8 + col] = {EMPTY};
@@ -54,11 +62,16 @@ void parseFen(Position &position, string fen) {
 
             // 1ULL << n : nth bit in a 64 bit bitmask set to 1.
             // [pieceType - 1] because index 'EMPTY' is 0.
-            position.bitboards[pieceType - 1] |= (1ULL << piecePosition);
+            position.bitboards[pieceType] |= (1ULL << piecePosition);
 
             col++;
         }
     }
+
+    // this is a temporary location for this logic; should not be here
+    position.whitePieces = position.bitboards[WP] | position.bitboards[WN] | position.bitboards[WB] | position.bitboards[WR] | position.bitboards[WQ] | position.bitboards[WK];
+    position.blackPieces = position.bitboards[BP] | position.bitboards[BN] | position.bitboards[BB] | position.bitboards[BR] | position.bitboards[BQ] | position.bitboards[BK];
+    position.empty = ~(position.whitePieces | position.blackPieces);
 };
 
 void move(Position &position, Move move) {
@@ -82,9 +95,11 @@ int main() {
         ClearBackground(RAYWHITE);
         
         drawBoard(tileSize);
-        drawPieces(position, tileSize); 
-        update(position);
+        drawLegalTiles(selectedLegalMoves);
 
+        drawPieces(position, tileSize); 
+
+        update(position);
         EndDrawing();
     }
     UnloadPieceTextures();  

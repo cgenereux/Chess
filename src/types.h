@@ -31,4 +31,7 @@ struct MoveList {
     void addMove(Move m) {
         moves[i++] = m;
     }
+    int size() {
+        return i;
+    }
 };

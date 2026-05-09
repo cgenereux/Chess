@@ -1,15 +1,20 @@
 #include "types.h"
 #include "renderer.h"
 using namespace std;
+#include "iostream"
 
 Texture2D pieceTextures[13];
 
-extern int tileSize;                                                                                                                                                                                          
+extern int tileSize;                                                                                                                                                                               
 extern int windowWidth;
 extern int windowHeight;
 
 Color baishe = {241, 216, 179, 255};
 Color brown = {169, 129, 97, 255};
+
+// legal move tile colors
+Color greenBaishe = {191, 216, 154, 255};
+Color greenBrown = {119, 129, 72, 255};
 
 void LoadPieceTextures() {
     pieceTextures[WP] = LoadTexture("res/white-pawn.png");
@@ -107,4 +112,28 @@ void drawSelectedPiece(Position &position, int tile, float mouseX, float mouseY)
     
     int col = tile % 8;
     drawPiece(pieceType, col, mouseX - (tileSize/2), mouseY - (tileSize/2)); 
+};
+
+void drawLegalTiles(uint64_t selectedLegalMoves) {
+
+    uint8_t legalTiles[32] = {};
+    int i = 0;
+    while (selectedLegalMoves) {
+
+        legalTiles[i] = __builtin_ctzll(selectedLegalMoves);
+        selectedLegalMoves &= selectedLegalMoves-1;
+
+        int row = (63-legalTiles[i])/8;
+        int col = legalTiles[i]%8;
+
+        Color tileColor = ((row+col)%2) == 0 ? greenBaishe : greenBrown;
+
+        DrawRectangle(
+            tileSize * col,
+            tileSize * row,
+            tileSize,
+            tileSize,
+            tileColor
+        );
+    }
 };
