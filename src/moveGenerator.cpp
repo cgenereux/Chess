@@ -32,16 +32,16 @@ void generateKnightLegalMoves(uint64_t enemies, bool isWhiteTurn, Position &posi
 
         uint64_t singleKnight = 1ULL << fromSquare;
 
-        uint64_t attacks;
+        uint64_t attacks = 0;
         attacks |= (singleKnight & ~colH) << 17;
         attacks |= (singleKnight & ~colA) << 15;
         attacks |= (singleKnight & ~colG & ~colH) << 10;
-        attacks |= (singleKnight & ~colA & colB) << 6;
+        attacks |= (singleKnight & ~colA & ~colB) << 6;
 
-        attacks |= (singleKnight & ~colH) >> 17;
-        attacks |= (singleKnight & ~colA) >> 15;
-        attacks |= (singleKnight & ~colG & ~colH) >> 10;
-        attacks |= (singleKnight & ~colA & colB) >> 6;
+        attacks |= (singleKnight & ~colA)< 17;
+        attacks |= (singleKnight & ~colH) >> 15;
+        attacks |= (singleKnight & ~colA & ~colB) >> 10;
+        attacks |= (singleKnight & ~colG & ~colH) >> 6;
 
         uint64_t validMoves = attacks & ~friendlyPieces;
 
@@ -49,8 +49,9 @@ void generateKnightLegalMoves(uint64_t enemies, bool isWhiteTurn, Position &posi
             int toSquare = __builtin_ctzll(validMoves);
             move.to = toSquare;
             validMoves &= validMoves-1;
+            out.addMove(move);
         }
-        friendlyKnights ^= friendlyKnights-1;
+        friendlyKnights &= friendlyKnights-1;
     }
 }
 
