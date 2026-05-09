@@ -11,6 +11,8 @@ int mouseReleasedTile = -1;
 
 uint64_t selectedLegalMoves;
 
+void move(Position &position, Move m); 
+
 int findMouseTile() {
     Vector2 mousePosition = GetMousePosition();
 
@@ -39,6 +41,8 @@ void update(Position &position) {
             } case WN: {
                 generateKnightLegalMoves(enemies, isWhiteTurn, position, legalMoveList);
                 break;
+            } case WK: {
+                generateKingLegalMoves(enemies, isWhiteTurn, position, legalMoveList);
             }
             default:
                 break;
@@ -50,13 +54,16 @@ void update(Position &position) {
         }
     }
     if (dragging) {
-        dragging = true;
         Vector2 currentMousePos = GetMousePosition();
         drawSelectedPiece(position, mouseClickedTile, currentMousePos.x, currentMousePos.y);
     }
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && dragging) {
-        selectedLegalMoves = 0ULL;
         mouseReleasedTile = findMouseTile();
         dragging = false;
+        Move m;
+        m.from = mouseClickedTile;
+        m.to = mouseReleasedTile;
+        move(position, m);
+        selectedLegalMoves = 0ULL;
     }
 };

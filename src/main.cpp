@@ -28,6 +28,14 @@ PieceType charToPieceType(char c) {
     }
 };
 
+void recomputeBitBoards(Position &position) {
+
+    position.whitePieces = position.bitboards[WP] | position.bitboards[WN] | position.bitboards[WB] | position.bitboards[WR] | position.bitboards[WQ] | position.bitboards[WK];
+    position.blackPieces = position.bitboards[BP] | position.bitboards[BN] | position.bitboards[BB] | position.bitboards[BR] | position.bitboards[BQ] | position.bitboards[BK];
+    position.empty = ~(position.whitePieces | position.blackPieces);
+
+}
+
 void parseFen(Position &position, string fen) {
 
     // clear the bitboards 
@@ -69,16 +77,33 @@ void parseFen(Position &position, string fen) {
     }
 
     // this is a temporary location for this logic; should not be here
-    position.whitePieces = position.bitboards[WP] | position.bitboards[WN] | position.bitboards[WB] | position.bitboards[WR] | position.bitboards[WQ] | position.bitboards[WK];
-    position.blackPieces = position.bitboards[BP] | position.bitboards[BN] | position.bitboards[BB] | position.bitboards[BR] | position.bitboards[BQ] | position.bitboards[BK];
-    position.empty = ~(position.whitePieces | position.blackPieces);
+    recomputeBitBoards(position);
 };
 
 void move(Position &position, Move move) {
-    Piece piece = position.board[move.from];
+    if (!GET_BIT(selectedLegalMoves, move.to)) return;
+
+    Piece movingPiece = position.board[move.from];
+    PieceType standingPieceType = position.board[move.to].type;
+    PieceType movingPieceType = movingPiece.type;
+
     position.board[move.from].type = EMPTY;
-    position.board[move.to] = piece;
-    
+    position.board[move.to] = movingPiece;
+
+    // isWhiteTurn = !isWhiteTurn
+
+    // reset the bitboard
+    CLEAR_BIT(position.bitboards[movingPieceType], move.from);
+    SET_BIT(position.bitboards[movingPieceType], move.to);
+
+    if (standingPieceType != EMPTY) CLEAR_BIT(position.bitboards[standingPieceType], move.to);
+
+    recomputeBitBoards(position);
+
+};
+
+bool isInCheck() {
+
 };
 
 int main() {
@@ -87,13 +112,12 @@ int main() {
     LoadPieceTextures();    
 
     Position position;
-    parseFen(position, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); // starting fen string
+    parseFen(position, "8/p4pkp/1p2p1p1/8/q1P4P/2Q3P1/PP3P2/3r2K1 w - - 1 29"); // starting fen string
 
     while (!WindowShouldClose()) {
 
         BeginDrawing();
-        ClearBackground(RAYWHITE);
-        
+        ClearBackground(RAYWHITE);        
         drawBoard(tileSize);
         drawLegalTiles(selectedLegalMoves);
 

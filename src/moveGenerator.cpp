@@ -15,6 +15,7 @@ void generateLegalMoves(bool isWhiteTurn, Position &position, MoveList &out) {
     uint64_t enemies = isWhiteTurn ? (position.blackPieces) : (position.whitePieces);
 
     generatePawnLegalMoves(enemies, isWhiteTurn, position, out);
+    generateKnightLegalMoves(enemies, isWhiteTurn, position, out);
     generateKingLegalMoves(enemies, isWhiteTurn, position, out);
 };
 
@@ -38,7 +39,7 @@ void generateKnightLegalMoves(uint64_t enemies, bool isWhiteTurn, Position &posi
         attacks |= (singleKnight & ~colG & ~colH) << 10;
         attacks |= (singleKnight & ~colA & ~colB) << 6;
 
-        attacks |= (singleKnight & ~colA)< 17;
+        attacks |= (singleKnight & ~colA) << 17;
         attacks |= (singleKnight & ~colH) >> 15;
         attacks |= (singleKnight & ~colA & ~colB) >> 10;
         attacks |= (singleKnight & ~colG & ~colH) >> 6;
