@@ -1,7 +1,11 @@
 #include "moveGenerator.h"
 
 constexpr uint64_t colA = 0x0101010101010101ULL;
+constexpr uint64_t colB = 0x0202020202020202ULL;
+
 constexpr uint64_t colH = 0x8080808080808080ULL;
+constexpr uint64_t colG = 0x4040404040404040ULL;
+
 constexpr uint64_t row4 = 0x00000000FF000000ULL;
 constexpr uint64_t row5 = 0x000000FF00000000ULL;
 
@@ -13,6 +17,42 @@ void generateLegalMoves(bool isWhiteTurn, Position &position, MoveList &out) {
     generatePawnLegalMoves(enemies, isWhiteTurn, position, out);
     generateKingLegalMoves(enemies, isWhiteTurn, position, out);
 };
+
+void generateKnightLegalMoves(uint64_t enemies, bool isWhiteTurn, Position &position, MoveList &out) {
+
+    uint64_t friendlyKnights = isWhiteTurn ? position.bitboards[WN] : position.bitboards[BN];
+    uint64_t friendlyPieces = isWhiteTurn ? (position.whitePieces) : (position.blackPieces);
+
+    while (friendlyKnights) {
+
+        int fromSquare = __builtin_ctzll(friendlyKnights);
+
+        Move move;
+        move.from = fromSquare;
+
+        uint64_t singleKnight = 1ULL << fromSquare;
+
+        uint64_t attacks;
+        attacks |= (singleKnight & ~colH) << 17;
+        attacks |= (singleKnight & ~colA) << 15;
+        attacks |= (singleKnight & ~colG & ~colH) << 10;
+        attacks |= (singleKnight & ~colA & colB) << 6;
+
+        attacks |= (singleKnight & ~colH) >> 17;
+        attacks |= (singleKnight & ~colA) >> 15;
+        attacks |= (singleKnight & ~colG & ~colH) >> 10;
+        attacks |= (singleKnight & ~colA & colB) >> 6;
+
+        uint64_t validMoves = attacks & ~friendlyPieces;
+
+        while (validMoves) {
+            int toSquare = __builtin_ctzll(validMoves);
+            move.to = toSquare;
+            validMoves &= validMoves-1;
+        }
+        friendlyKnights ^= friendlyKnights-1;
+    }
+}
 
 void generateKingLegalMoves(uint64_t enemies, bool isWhiteTurn, Position &position, MoveList &out) {
 
